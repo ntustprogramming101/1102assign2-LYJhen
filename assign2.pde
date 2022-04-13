@@ -1,6 +1,7 @@
 final int GAME_START = 0;
 final int GAME_RUN = 1;
 final int GAME_LOSE = 2;
+int gameState  = 0;
 
 PImage bg;
 PImage soil;
@@ -8,32 +9,49 @@ PImage life;
 PImage soldier;
 PImage cabbage;
 PImage gameover;
-PImage groundhogDown;
-PImage groundhogIdle;
-PImage groundhogLeft;
-PImage groundhogRight;
 PImage restartHovered;
 PImage restartNormal;
 PImage startHovered;
 PImage startNormal;
 PImage title;
 
+int x,y;
+
 int soliderX , soliderY;
 int robotX , robotY;
 int laserX , move , laserY;
 int cabbageX, cabbageY;
 
-float groundhogX;
-float groundhogY;
 float frames = 15;
 int block = 80;
 float lifeCount = 2;
 
- 
-int gameState;
+boolean downPressed = false;
+boolean leftPressed = false;
+boolean rightPressed = false;
 
+int buttonW = 144;
+int buttonH = 60;
+int buttonX = 248;
+int buttonY = 360;
+
+PImage groundhogIdle;
+float groundhogX = 4*block;
+float groundhogY = block;  
+float groundhogXPlus;
+float groundhogYPlus;
+PImage groundhogDown;
+PImage groundhogRight;
+PImage groundhogLeft;
+int groundhogStat;
+int timer;
+final int GH_IDLE=0, GH_DOWN=1, GH_RIGHT=2, GH_LEFT=3;
+
+
+ 
 void setup() {
 	size(640, 480, P2D);
+  frameRate(60);
 	bg = loadImage("img/bg.jpg");
   soil = loadImage("img/soil.png");
   life= loadImage("img/life.png");
@@ -55,50 +73,68 @@ void setup() {
   cabbageX = floor(random(2,6));
   x = 320;
   y = 80;
+  
+  gameState = GAME_START;
 }
 
-boolean downPressed = false;
-boolean leftPressed = false;
-boolean rightPressed = false;
 
-gameState = GAME_START;
 
 void draw() { //<>//
 	switch (gameState){
     case GAME_START:
     image(title,0,0);
-    image(startNormal,360,248);
+    image(startNormal,buttonX,buttonY);
       
-      if(mouseX>248 && mouseX<392 && mouseY>360 && mouseY<420){
-        image(startHovered,360,248);
+      if(mouseX > buttonX && mouseX < buttonX + buttonW 
+      && mouseY > buttonY && mouseY < buttonY + buttonH){
+        image(startHovered,buttonX, buttonY);
         if(mousePressed){
           gameState = GAME_RUN;
-        }else{
-          image(startNormal,360,248);
         }
       }
   break;  
   //<>//
     case GAME_RUN:
 		// Game Run
-  if(downPressed){
-    y += frames;
-      if(y >= 400){
-        y = 400;
+  
+  switch(groundhogStat){
+    case GH_IDLE:
+      image(groundhogIdle,groundhogX,groundhogY);
+      break;
+    case GH_DOWN:
+      image(groundhogDown,groundhogX,groundhogY);
+      timer+=1;
+      groundhogY+=80.0/15;
+      break;
+    case GH_RIGHT:
+      image(groundhogRight,groundhogX,groundhogY);
+      timer+=1;
+      groundhogX+=80.0/15;
+      break;
+    case GH_LEFT:
+      image(groundhogLeft,groundhogX,groundhogY);
+      timer+=1;
+      groundhogX-=80.0/15;
+      break;
+    }
+    //check timer
+    if(timer==15){
+      groundhogStat=GH_IDLE;
+    if(groundhogY%block<30){//fix float point offset
+      groundhogY=groundhogY-groundhogY%block;
+      }else{
+      groundhogY=groundhogY-groundhogY%block+block;
       }
-  }
-  if(leftPressed){
-    x -= frames;
-      if(x <= 0){
-        x = 0;
+    if(groundhogX%block<30){
+      groundhogX=groundhogX-groundhogX%block;
+      }else{
+      groundhogX=groundhogX-groundhogX%block+block;
       }
-  }
-  if(rightPressed){
-    x += frames;
-      if(x >= 560){
-        x = 560;
-      }
-  }
+      //println(hogX);
+      //println(hogY);
+      timer=0;
+   }
+
   
   image(bg,0,0);
   image(soil,0,160);
@@ -114,9 +150,7 @@ void draw() { //<>//
   strokeWeight(5);
   stroke(255,255,0);
   arc(590,50,120,120,radians(0),radians(360));
- 
-//groundhogIdle
-  image(groundhogIdle,groundhogX,groundhogY);
+
   
   //if(x)
   
@@ -150,7 +184,7 @@ void draw() { //<>//
 // groundhog touch soldier
   if(groundhogX >= soliderX && groundhogX + block <= soliderX + block && groundhogY == 80*soliderY){
     groundhogX = 4*block;
-    80*groundhogY = block;
+    groundhogY = block;
     lifeCount -= 1;
   if( lifeCount < 1){
     gameState = GAME_LOSE;
@@ -159,34 +193,34 @@ void draw() { //<>//
  
 //cabbage
   image(cabbage,80*cabbageX,80*cabbageY);
-  if(groundhogX >= 80*cabbageX && groundhogX + block <= 80*cabbageX +block
+  if(groundhogX >= 80*cabbageX+80 && groundhogX + block <= 80*cabbageX +block
     && groundhogY >= 80*cabbageY && groundhogY + block <= 80*cabbageY +block){
-    cabfinalX = -1000;
-    cabfinalY = -1000;
+    //cabfinalX = -1000;
+    //cabfinalY = -1000;
     lifeCount += 1;            
     if (lifeCount > 3){
     lifeCount = 3;
     }  
-  
+   }
   break;
 		
-  case GAME_LOSE:
+  case GAME_LOSE :
 // Game Lose //<>//
   image(gameover,0,0);
   image(restartNormal,360,248);
+    
+      if(mouseX > buttonX && mouseX < buttonX + buttonW 
+      && mouseY > buttonY && mouseY < buttonY + buttonH){
+        image(startHovered,buttonX, buttonY);
+        if(mousePressed){
+         gameState = GAME_START;
       
-    if(mouseX>248 && mouseX<392 && mouseY>360 && mouseY<420){
-      image(startHovered,360,248);
-      if(mousePressed){
-        gameState = GAME_START;
-      }else{
-        image(restartHovered,360,248);
     }
-  break; //<>//
-  }
+  break;}
+} //<>//
 }
 
-void keyPressed(){ //<>//
+void keyPressed(){
   if(key == CODED){
     switch(keyCode){
       case DOWN:
@@ -206,20 +240,25 @@ void keyPressed(){ //<>//
 }
 
 void keyReleased(){
-  if(key == CODED){
+      if(key ==CODED){
     switch(keyCode){
       case DOWN:
-        downPressed = false;
-        y = y+0;
-        break;
-      case LEFT:
-        leftPressed = false;
-        x = x-0;
+        if(groundhogY+block<height&&groundhogStat==GH_IDLE){
+          groundhogStat=GH_DOWN;
+          timer=0;
+        }
         break;
       case RIGHT:
-        rightPressed = false;
-        x = x+0;
+        if(groundhogX+block<width&&groundhogStat==GH_IDLE){
+          groundhogStat=GH_RIGHT;
+          timer=0;
+        }
         break;
-    }
+      case LEFT:
+        if(groundhogX>0&&groundhogStat==GH_IDLE){
+         groundhogStat=GH_LEFT;
+          timer=0;
+      break;
+    }}
   }
-}
+  }
