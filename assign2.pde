@@ -97,7 +97,25 @@ void draw() { //<>//
     case GAME_RUN:
 		// Game Run
   
-  switch(groundhogStat){
+  
+  image(bg,0,0);
+  image(soil,0,160);
+//grassland
+  stroke(124,204,25);
+  fill(124,204,25);
+  rect(0,145,640,15);
+//sun
+  noStroke();
+  fill(253,184,19);
+  ellipse(590,50,120,120);
+  
+  strokeWeight(5);
+  stroke(255,255,0);
+  arc(590,50,120,120,radians(0),radians(360));
+
+  
+  //if(x)
+    switch(groundhogStat){
     case GH_IDLE:
       image(groundhogIdle,groundhogX,groundhogY);
       break;
@@ -134,25 +152,6 @@ void draw() { //<>//
       //println(hogY);
       timer=0;
    }
-
-  
-  image(bg,0,0);
-  image(soil,0,160);
-//grassland
-  stroke(124,204,25);
-  fill(124,204,25);
-  rect(0,145,640,15);
-//sun
-  noStroke();
-  fill(253,184,19);
-  ellipse(590,50,120,120);
-  
-  strokeWeight(5);
-  stroke(255,255,0);
-  arc(590,50,120,120,radians(0),radians(360));
-
-  
-  //if(x)
   
 //life
    if(lifeCount == 2){
