@@ -181,7 +181,10 @@ void draw() { //<>//
   }
 
 // groundhog touch soldier
-  if(groundhogX >= soliderX && groundhogX + block <= soliderX + block && groundhogY == 80*soliderY){
+  if(groundhogX < soliderX+80 &&//hog touch soldier
+    groundhogX+80 > soliderX &&
+    groundhogY < soliderY+80 &&
+    groundhogY+80 > soliderY){
     groundhogX = 4*block;
     groundhogY = block;
     lifeCount -= 1;
